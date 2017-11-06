@@ -9,7 +9,6 @@ import org.apache.kafka.streams.processor.WallclockTimestampExtractor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
 
 @EnableKafka
@@ -18,8 +17,8 @@ public class KafkaStreamsConfig {
 
   private Serde<String> stringSerde = Serdes.String();
 
-  @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
-  public StreamsConfig kStreamsConfigs() {
+  @Bean
+  public Map<String, Object> kStreamsConfigs() {
 
     Map<String, Object> props = new HashMap<>();
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp");
@@ -30,16 +29,20 @@ public class KafkaStreamsConfig {
     props.put(StreamsConfig.STATE_DIR_CONFIG, "tmp/kafka-streams");
     props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
         WallclockTimestampExtractor.class.getName());
-    return new StreamsConfig(props);
+    return props;
   }
 
   @Bean
   public KStreamBuilderFactoryBean kStreamBuilderFactoryBean() {
-    return new KStreamBuilderFactoryBean(kStreamsConfigs());
+    Map<String, Object> props = kStreamsConfigs();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp" + "_stream1");
+    return new KStreamBuilderFactoryBean(props);
   }
 
   @Bean
   public KStreamBuilderFactoryBean anotherKStreamBuilderFactoryBean() {
-    return new KStreamBuilderFactoryBean(kStreamsConfigs());
+    Map<String, Object> props = kStreamsConfigs();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp" + "_stream2");
+    return new KStreamBuilderFactoryBean(props);
   }
 }
