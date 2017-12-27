@@ -41,10 +41,9 @@ public class AvroStreamListener {
 
   }
 
-  @SuppressWarnings("unchecked")
   @PostConstruct
   public void injectStream() {
-    Serde<Message> messageSerde = new SpecificAvroSerde<Message>();
+    Serde<Message> messageSerde = new SpecificAvroSerde<>();
     try {
       kStreamBuilderFactoryBean.setAutoStartup(false);
       avroKStreamBuilder = kStreamBuilderFactoryBean.getObject();
