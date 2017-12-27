@@ -1,0 +1,11 @@
+{
+  "namespace": "kafka.streams.sample.avro",
+  "type": "record",
+  "name": "Message",
+  "fields": [
+    {
+      "name": "testMessage",
+      "type": ["null", "string"]
+    }
+  ]
+}

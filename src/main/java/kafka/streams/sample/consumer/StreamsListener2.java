@@ -28,8 +28,20 @@ public class StreamsListener2 {
   private KafkaStreams streams2;
   private Serde<String> stringSerde = Serdes.String();
 
+  @PreDestroy
+  public void closeStream() {
+    log.debug("the state of streams2 before close in PreDestroy: {}", streams2.state());
+
+    if (streams2.state().isRunning()) {
+      streams2.close();
+      streams2.cleanUp();
+    }
+    log.debug("the state of streams2 after close in PreDestroy: {}", streams2.state());
+
+  }
+
   @PostConstruct
-  public void runStream() {
+  public void injectStream() {
     try {
       anotherKStreamBuilderFactoryBean.setAutoStartup(false);
       kStreamBuilder2 = anotherKStreamBuilderFactoryBean.getObject();
@@ -43,7 +55,7 @@ public class StreamsListener2 {
   }
 
   @EventListener(ContextRefreshedEvent.class)
-  public void injectStream() {
+  public void runStream() {
     log.debug("is anotherKStreamBuilderFactoryBean running before starting streams? {}",
         anotherKStreamBuilderFactoryBean.isRunning());
 
@@ -55,18 +67,6 @@ public class StreamsListener2 {
     }
     streams2 = anotherKStreamBuilderFactoryBean.getKafkaStreams();
     log.debug("the state of streams2 after start: {}", streams2.state());
-
-  }
-
-  @PreDestroy
-  public void closeStream() {
-    log.debug("the state of streams2 before close in PreDestroy: {}", streams2.state());
-
-    if (streams2.state().isRunning()) {
-      streams2.close();
-      streams2.cleanUp();
-    }
-    log.debug("the state of streams2 after close in PreDestroy: {}", streams2.state());
 
   }
 }

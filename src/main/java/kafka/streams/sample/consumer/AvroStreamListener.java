@@ -15,41 +15,45 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
 import org.springframework.stereotype.Component;
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+import kafka.streams.sample.avro.Message;
 
 @Component
-public class StreamsListener1 {
-  private static final Logger log = LoggerFactory.getLogger(StreamsListener1.class);
-  private KStream<String, String> kStream1;
+public class AvroStreamListener {
+  private static final Logger log = LoggerFactory.getLogger(AvroStreamListener.class);
+  private KStream<String, Message> avroKStream;
   @Autowired
-  @Qualifier("kStreamBuilderFactoryBean")
+  @Qualifier("avrokStreamBuilderFactoryBean")
   private KStreamBuilderFactoryBean kStreamBuilderFactoryBean;
-  private KStreamBuilder kStreamBuilder1;
-  private KafkaStreams streams1;
+  private KStreamBuilder avroKStreamBuilder;
+  private KafkaStreams avroStream;
   private Serde<String> stringSerde = Serdes.String();
 
   @PreDestroy
   public void closeStream() {
-    log.debug("the state of streams1 before close in PreDestroy: {}", streams1.state());
+    log.debug("the state of avroStream before close in PreDestroy: {}", avroStream.state());
 
-    if (streams1.state().isRunning()) {
-      streams1.close();
-      streams1.cleanUp();
+    if (avroStream.state().isRunning()) {
+      avroStream.close();
+      avroStream.cleanUp();
     }
-    log.debug("the state of streams1 after close in PreDestroy: {}", streams1.state());
+    log.debug("the state of avroStream after close in PreDestroy: {}", avroStream.state());
 
   }
 
+  @SuppressWarnings("unchecked")
   @PostConstruct
   public void injectStream() {
+    Serde<Message> messageSerde = new SpecificAvroSerde<Message>();
     try {
       kStreamBuilderFactoryBean.setAutoStartup(false);
-      kStreamBuilder1 = kStreamBuilderFactoryBean.getObject();
-      kStream1 = kStreamBuilder1.stream(stringSerde, stringSerde, "one.test");
-      kStream1.foreach((key, value) -> {
+      avroKStreamBuilder = kStreamBuilderFactoryBean.getObject();
+      avroKStream = avroKStreamBuilder.stream(stringSerde, messageSerde, "avro.topic");
+      avroKStream.foreach((key, value) -> {
         log.info("The value is : {}", value);
       });
     } catch (Exception e) {
-      log.error("Caught an exception in stream1: {}", e);
+      log.error("Caught an exception in avroStream: {}", e);
     }
   }
 
@@ -63,8 +67,8 @@ public class StreamsListener1 {
       log.debug("is kStreamBuilderFactoryBean running after starting kstreambuilder? {}",
           kStreamBuilderFactoryBean.isRunning());
     }
-    streams1 = kStreamBuilderFactoryBean.getKafkaStreams();
-    log.debug("the state of streams1 after start: {}", streams1.state());
+    avroStream = kStreamBuilderFactoryBean.getKafkaStreams();
+    log.debug("the state of avroStream after start: {}", avroStream.state());
 
   }
 }

@@ -10,12 +10,35 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 
 @EnableKafka
 @Configuration
 public class KafkaStreamsConfig {
 
+  private static final String appName = "myKafkaStreamsApp";
   private Serde<String> stringSerde = Serdes.String();
+
+  @Bean
+  public KStreamBuilderFactoryBean anotherKStreamBuilderFactoryBean() {
+    Map<String, Object> props = kStreamsConfigs();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, KafkaStreamsConfig.appName + "_stream2");
+    return new KStreamBuilderFactoryBean(props);
+  }
+
+  @Bean
+  public KStreamBuilderFactoryBean avrokStreamBuilderFactoryBean() {
+    Map<String, Object> props = kStreamsConfigs();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, KafkaStreamsConfig.appName + "_avroStream");
+    return new KStreamBuilderFactoryBean(props);
+  }
+
+  @Bean
+  public KStreamBuilderFactoryBean kStreamBuilderFactoryBean() {
+    Map<String, Object> props = kStreamsConfigs();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, KafkaStreamsConfig.appName + "_stream1");
+    return new KStreamBuilderFactoryBean(props);
+  }
 
   @Bean
   public Map<String, Object> kStreamsConfigs() {
@@ -29,20 +52,7 @@ public class KafkaStreamsConfig {
     props.put(StreamsConfig.STATE_DIR_CONFIG, "tmp/kafka-streams");
     props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
         WallclockTimestampExtractor.class.getName());
+    props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "localhost:8081");
     return props;
-  }
-
-  @Bean
-  public KStreamBuilderFactoryBean kStreamBuilderFactoryBean() {
-    Map<String, Object> props = kStreamsConfigs();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp" + "_stream1");
-    return new KStreamBuilderFactoryBean(props);
-  }
-
-  @Bean
-  public KStreamBuilderFactoryBean anotherKStreamBuilderFactoryBean() {
-    Map<String, Object> props = kStreamsConfigs();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp" + "_stream2");
-    return new KStreamBuilderFactoryBean(props);
   }
 }
