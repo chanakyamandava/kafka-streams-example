@@ -14,9 +14,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
-import org.springframework.stereotype.Component;
 
-@Component
+// @Component
 public class StreamsListener1 {
   private static final Logger log = LoggerFactory.getLogger(StreamsListener1.class);
   private KStream<String, String> kStream1;

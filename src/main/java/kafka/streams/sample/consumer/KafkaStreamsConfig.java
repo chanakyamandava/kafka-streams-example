@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 
 @EnableKafka
 @Configuration
@@ -46,7 +47,7 @@ public class KafkaStreamsConfig {
     Map<String, Object> props = new HashMap<>();
     props.put(StreamsConfig.APPLICATION_ID_CONFIG, "myKafkaStreamsApp");
     props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.getClass().getName());
-    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, stringSerde.getClass().getName());
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class);
     props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
     props.put(StreamsConfig.STATE_DIR_CONFIG, "tmp/kafka-streams");

@@ -1,5 +1,6 @@
 package kafka.streams.sample.consumer;
 
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.kafka.common.serialization.Serde;
@@ -15,6 +16,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KStreamBuilderFactoryBean;
 import org.springframework.stereotype.Component;
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import kafka.streams.sample.avro.Message;
 
@@ -44,6 +46,10 @@ public class AvroStreamListener {
   @PostConstruct
   public void injectStream() {
     Serde<Message> messageSerde = new SpecificAvroSerde<>();
+    boolean isKeySerde = false;
+    messageSerde
+        .configure(Collections.singletonMap(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+            "http://localhost:8081/"), isKeySerde);
     try {
       kStreamBuilderFactoryBean.setAutoStartup(false);
       avroKStreamBuilder = kStreamBuilderFactoryBean.getObject();
