@@ -65,11 +65,6 @@
 			<artifactId>kafka-schema-registry-client</artifactId>
 			<version>${confluent.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.panera.notification</groupId>
-			<artifactId>receiver-kafka-schemas</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 
 	</dependencies>
 
@@ -97,7 +92,8 @@
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>schema</goal>
-						</goals>						<configuration>
+						</goals>
+						<configuration>
 							<sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
 							<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
 							<stringType>String</stringType>
